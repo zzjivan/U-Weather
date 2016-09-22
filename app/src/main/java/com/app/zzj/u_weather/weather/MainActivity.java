@@ -1,17 +1,35 @@
-package com.app.zzj.u_weather;
+package com.app.zzj.u_weather.weather;
 
-import android.support.v7.app.ActionBarActivity;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
+
+import com.app.zzj.u_weather.R;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("zzj","zzj");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        }
         setContentView(R.layout.activity_main);
+
+        FragmentManager fragmentManager =getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        WeatherFragment weatherFragment = new WeatherFragment();
+        transaction.add(R.id.weatherF, weatherFragment);
+        transaction.commit();
     }
 
 
