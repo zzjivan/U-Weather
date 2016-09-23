@@ -3,17 +3,14 @@ package com.app.zzj.u_weather.API;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.app.zzj.u_weather.API.Entity.Info_Life;
 import com.app.zzj.u_weather.API.Entity.Weather;
 import com.google.gson.Gson;
 
 import java.io.IOException;
-import java.net.URL;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -70,7 +67,7 @@ public class ApiManager {
         try {
             Response rsp= call.execute();
             if(rsp.isSuccessful()) {
-                Info_Life weather = gson.fromJson(rsp.body().string(), Info_Life.class);
+                Weather weather = gson.fromJson(rsp.body().string(), Weather.class);
                 Log.d("zzj",weather.toString());
             } else {
                 Log.d("zzj", "error");
