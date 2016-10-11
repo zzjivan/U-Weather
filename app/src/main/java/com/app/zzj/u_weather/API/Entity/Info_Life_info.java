@@ -9,7 +9,6 @@ public class Info_Life_info {
     public List<String> chuanyi;
     public List<String> ganmao;
     public List<String> kongtiao;
-    public List<String> wuran;
     public List<String> xiche;
     public List<String> yundong;
     public List<String> ziwaixian;
@@ -36,14 +35,6 @@ public class Info_Life_info {
 
     public void setKongtiao(List<String> kongtiao) {
         this.kongtiao = kongtiao;
-    }
-
-    public List<String> getWuran() {
-        return wuran;
-    }
-
-    public void setWuran(List<String> wuran) {
-        this.wuran = wuran;
     }
 
     public List<String> getXiche() {
@@ -76,7 +67,6 @@ public class Info_Life_info {
                 "chuanyi=" + chuanyi +
                 ", ganmao=" + ganmao +
                 ", kongtiao=" + kongtiao +
-                ", wuran=" + wuran +
                 ", xiche=" + xiche +
                 ", yundong=" + yundong +
                 ", ziwaixian=" + ziwaixian +

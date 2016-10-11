@@ -20,7 +20,7 @@ import okhttp3.Response;
  */
 public class ApiManager {
 
-    private static String URL = "http://op.juhe.cn/onebox/weather/query?cityname=%1$s&dtype=json&key=f2a64f1e37759dd8c1025e00f2e14b57";
+    private static final String URL = "http://op.juhe.cn/onebox/weather/query?cityname=%1$s&dtype=json&key=f2a64f1e37759dd8c1025e00f2e14b57";
     private final static Gson gson = new Gson();
 
     public interface ApiListerner {
@@ -29,8 +29,8 @@ public class ApiManager {
     }
 
     public static void updateWeather(Context context, String city, ApiListerner listener) {
-        URL = String.format(URL, city);
-        new ApiTask(context, URL, listener).execute();
+        String url = String.format(URL, city);
+        new ApiTask(context, url, listener).execute();
     }
 
     static class ApiTask extends AsyncTask<Void, Void, Weather> {
@@ -48,7 +48,7 @@ public class ApiManager {
 
         @Override
         protected Weather doInBackground(Void... params) {
-            return updateWeatherFromInternet(context, url);
+            return updateWeatherFromInternet(context, url, listener);
         }
 
         @Override
@@ -57,7 +57,7 @@ public class ApiManager {
         }
     }
 
-    private static Weather updateWeatherFromInternet(Context context, String url ) {
+    private static Weather updateWeatherFromInternet(Context context, String url, ApiListerner listener ) {
         //创建okHttpClient对象
         OkHttpClient mOkHttpClient = new OkHttpClient();
         //创建一个Request
@@ -68,9 +68,9 @@ public class ApiManager {
             Response rsp= call.execute();
             if(rsp.isSuccessful()) {
                 Weather weather = gson.fromJson(rsp.body().string(), Weather.class);
-                Log.d("zzj",weather.toString());
+                listener.onRecieveWeather(weather);
             } else {
-                Log.d("zzj", "error");
+                listener.onUpdateError();
             }
         } catch (IOException e) {
             e.printStackTrace();

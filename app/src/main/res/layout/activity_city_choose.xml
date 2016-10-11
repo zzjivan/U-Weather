@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.app.zzj.u_weather.weather.CityChooseActivity">
+    
+    <EditText
+        android:id="@+id/et_search_city"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:hint="@string/city_input"
+        android:drawableLeft="@drawable/ic_menu_search_holo_light"/>
+
+    <ListView
+        android:id="@+id/lv_list_city"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/et_search_city"
+        android:layout_toLeftOf="@+id/lv_letter"
+        android:layout_alignParentLeft="true"/>
+    
+    <TextView
+        android:id="@+id/tv_toast"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@android:color/darker_gray"
+        android:textSize="30sp"
+        android:textColor="@android:color/white"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:visibility="invisible"/>
+
+    <com.app.zzj.u_weather.NView.LetterView
+        android:id="@+id/lv_letter"
+        android:layout_width="60dp"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/et_search_city"
+        android:layout_alignParentRight="true"/>
+
+</RelativeLayout>

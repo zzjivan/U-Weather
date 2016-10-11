@@ -1,12 +1,45 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <fragment
-        android:name="com.app.zzj.u_weather.weather.WeatherFragment"
-        android:id="@+id/weatherF"
+    <TextView
+        android:id="@+id/tv_city"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:text="City"
+        android:textSize="32sp"
+        android:gravity="center_horizontal"
+        android:background="#1fa8f8"
+        android:paddingTop="25dp"
+        android:clickable="true"/>
 
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#1fa8f8"
+        android:layout_below="@+id/tv_city">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#ff6600">
+
+                <LinearLayout
+                    android:id="@+id/weatherF"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"/>
+
+            </RelativeLayout>
+
+        </ScrollView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>
