@@ -3,6 +3,8 @@
     package="com.app.zzj.u_weather">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -20,6 +22,9 @@
         </activity>
         <activity android:name=".weather.CityChooseActivity"
             android:windowSoftInputMode="adjustPan"></activity>
+
+        <provider android:name=".Data.CityProvider"
+            android:authorities="com.app.zzj.u_weather.Data.CityProvider"/>
     </application>
 
 </manifest>

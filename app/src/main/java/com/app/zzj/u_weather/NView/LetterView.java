@@ -71,7 +71,7 @@ public class LetterView extends View {
             case MotionEvent.ACTION_DOWN:
                 isShowBg = true;
                 if(old_choose != position && mOnSlidingListener != null) {
-                    if(position > 0 && position < letter.length) {
+                    if(position >= 0 && position < letter.length) {
                         choose = position;
                         mOnSlidingListener.sliding(letter[choose]);
                         if(tv_toast != null) {
@@ -85,7 +85,7 @@ public class LetterView extends View {
             case MotionEvent.ACTION_MOVE:
                 isShowBg = true;
                 if(old_choose != position && mOnSlidingListener != null) {
-                    if(position > 0 && position < letter.length) {
+                    if(position >= 0 && position < letter.length) {
                         choose = position;
                         mOnSlidingListener.sliding(letter[choose]);
                         if(tv_toast != null) {

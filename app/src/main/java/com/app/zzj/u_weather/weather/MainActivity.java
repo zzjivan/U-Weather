@@ -1,6 +1,8 @@
 package com.app.zzj.u_weather.weather;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,15 +19,19 @@ import android.widget.Toast;
 
 import com.app.zzj.u_weather.API.ApiManager;
 import com.app.zzj.u_weather.API.Entity.Weather;
+import com.app.zzj.u_weather.Data.CityProvider;
 import com.app.zzj.u_weather.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
 public class MainActivity extends FragmentActivity implements SwipeRefreshLayout.OnRefreshListener,View.OnClickListener {
 
     private final int WEATHER_UPDATE_COMPLETE = 1;
+    private final int CITY_LOAD_COMPLETE = 2;
 
     private final int CHOOSE_CITY  = 1000;
     private TextView tv_city;
@@ -34,6 +40,9 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
     private String city = "北京";
 
     private List<BaseFragment> fragmentList = new ArrayList<BaseFragment>();
+
+    private ArrayList<City> allcityList = new ArrayList<City>();
+    private ArrayList<City> hotcityList = new ArrayList<City>();
 
     public interface WeatherData {
         void onRefreshViews(Weather weather);
@@ -81,6 +90,8 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
         transaction.add(R.id.weatherF, weatherFragment);
         transaction.add(R.id.weatherF, lifeFragment);
         transaction.commit();
+
+        new CityLoder().execute();
     }
 
     @Override
@@ -105,6 +116,8 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
         if(v.getId() == R.id.tv_city) {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, CityChooseActivity.class);
+            intent.putParcelableArrayListExtra("allcity",allcityList );
+            intent.putParcelableArrayListExtra("hotcity",hotcityList );
             startActivityForResult(intent , CHOOSE_CITY);
         }
     }
@@ -136,4 +149,38 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
                 android.R.color.holo_orange_light, android.R.color.holo_red_light);
         refresh.setProgressViewEndTarget(true, 120);
     }
+
+    class CityLoder extends AsyncTask {
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+            //id + name + postcode + province_id
+            Cursor c = getContentResolver().query(CityProvider.CityColumns.CONTENT_URI, null, null, null, null);
+            if(c != null && c.moveToFirst()) {
+                do {
+                    City city = new City(c.getString(0));
+                    allcityList.add(city);
+                } while(c.moveToNext());
+                //按字母排序
+                Collections.sort(allcityList, comparator);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            mHandler.sendEmptyMessage(CITY_LOAD_COMPLETE);
+            super.onPostExecute(o);
+        }
+    }
+
+    Comparator<City> comparator = new Comparator<City>() {
+        @Override
+        public int compare(City lhs, City rhs) {
+            String l = lhs.getAlpha();
+            String r = rhs.getAlpha();
+            int flag = l.compareTo(r);
+            return  flag;
+        }
+    };
 }

@@ -1,6 +1,7 @@
 package com.app.zzj.u_weather.weather;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,7 +10,9 @@ import android.widget.TextView;
 
 import com.app.zzj.u_weather.R;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -20,6 +23,7 @@ public class CityChooseAdapter extends BaseAdapter {
     private Context context;
     private List<City> mAllCityList;
     private List<City> mHotCityList;
+    private Map<String, Integer> letter2position = new HashMap<String, Integer>();
 
     private final int VIEW_TYPE = 5;
 
@@ -27,6 +31,24 @@ public class CityChooseAdapter extends BaseAdapter {
         this.context = context;
         this.mAllCityList = allCityList;
         this.mHotCityList = hotCityList;
+        letter2position.put("定位",0);
+        letter2position.put("最近",1);
+        letter2position.put("热门",2);
+        letter2position.put("全部",3);
+        setData(mAllCityList, mHotCityList);
+    }
+
+    public void setData(List<City> allCityList, List<City> hotCityList) {
+        this.mAllCityList = allCityList;
+        this.mHotCityList = hotCityList;
+        for(int i = 0; i < mAllCityList.size(); i ++) {
+            String current = mAllCityList.get(i).getAlpha();
+            String pre = i - 1 >= 0 ? mAllCityList.get(i - 1).getAlpha() : "";
+            if(current.equals(pre)) {
+            } else {
+                letter2position.put(current, i);
+            }
+        }
     }
 
     @Override
@@ -60,12 +82,16 @@ public class CityChooseAdapter extends BaseAdapter {
         int type = getItemViewType(position);
         switch (type) {
             case 0:
+                convertView = View.inflate(context, R.layout.current_city, null);
                 break;
             case 1:
+                convertView = View.inflate(context, R.layout.recent_city, null);
                 break;
             case 2:
+                convertView = View.inflate(context, R.layout.hot_city, null);
                 break;
             case 3:
+                convertView = View.inflate(context, R.layout.current_city, null);
                 break;
             case 4:
                 if(convertView == null) {
@@ -78,18 +104,16 @@ public class CityChooseAdapter extends BaseAdapter {
                 } else {
                     holder = (ViewHolder) convertView.getTag();
                 }
-                if(position >= 1) {
                     holder.tv_city_name.setText(mAllCityList.get(position).getName());
 //                    holder.llMain.setOnClickListener();
-                    String current = getAlpha(mAllCityList.get(position).getPinyin());
-                    String pre = position - 1 >= 0 ? getAlpha(mAllCityList.get(position-1).getPinyin()) : "";
-                    if(current.equals(pre)) {
+                    String current = mAllCityList.get(position).getAlpha();
+                    String pre = position - 1 >= 0 ? mAllCityList.get(position-1).getAlpha() : "";
+                    if(current.equals(pre) && position != 4) {
                         holder.tv_alpha.setVisibility(View.GONE);
                     } else {
                         holder.tv_alpha.setText(current);
                         holder.tv_alpha.setVisibility(View.VISIBLE);
                     }
-                }
                 break;
             default:
                 break;
@@ -103,20 +127,8 @@ public class CityChooseAdapter extends BaseAdapter {
         LinearLayout llMain;
     }
 
-    // 获得汉语拼音首字母
-    private String getAlpha(String str) {
-        if (str == null) {
-            return "#";
-        }
-        if (str.trim().length() == 0) {
-            return "#";
-        }
-        char c = str.trim().substring(0, 1).charAt(0);
-        // 正则表达式，判断首字母是否是英文字母
-        Pattern pattern = Pattern.compile("^[A-Za-z]+$");
-        if (pattern.matcher(c + "").matches()) {
-            return (c + "").toUpperCase();
-        }
-        return "#";
+    public int getPosition(String s) {
+        Log.d("zzj","getPosition:"+s+","+letter2position.get(s));
+        return letter2position.get(s);
     }
 }
