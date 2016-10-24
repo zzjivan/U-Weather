@@ -12,6 +12,6 @@
         android:numColumns="auto_fit"
         android:scrollbars="horizontal"
         android:stretchMode="columnWidth"
-        android:background="@android:color/darker_gray"/>
+        android:background="#00ffffff"/>
 
 </FrameLayout>

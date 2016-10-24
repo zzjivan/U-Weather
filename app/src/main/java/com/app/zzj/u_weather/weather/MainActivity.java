@@ -2,6 +2,8 @@ package com.app.zzj.u_weather.weather;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import Util.BlurTool;
 
 
 public class MainActivity extends FragmentActivity implements SwipeRefreshLayout.OnRefreshListener,View.OnClickListener {
@@ -90,6 +94,9 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
         transaction.add(R.id.weatherF, weatherFragment);
         transaction.add(R.id.weatherF, lifeFragment);
         transaction.commit();
+
+        Bitmap bmp = ((BitmapDrawable) getResources().getDrawable(R.drawable.night_bg)).getBitmap();
+        getWindow().setBackgroundDrawable(new BitmapDrawable(BlurTool.blur(this, bmp)));
 
         new CityLoder().execute();
     }

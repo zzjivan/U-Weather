@@ -9,17 +9,17 @@
         android:layout_height="wrap_content"
         android:text="City"
         android:textSize="32sp"
+        android:textColor="@android:color/white"
         android:gravity="center_horizontal"
-        android:background="#1fa8f8"
         android:paddingTop="25dp"
-        android:clickable="true"/>
+        android:clickable="true"
+        android:background="#55000000"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#1fa8f8"
         android:layout_below="@+id/tv_city">
         <ScrollView
             android:layout_width="match_parent"
@@ -28,8 +28,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#ff6600">
+                android:layout_height="match_parent">
 
                 <LinearLayout
                     android:id="@+id/weatherF"
