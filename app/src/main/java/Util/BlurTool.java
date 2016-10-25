@@ -24,7 +24,7 @@ public class BlurTool {
                 Allocation.USAGE_SCRIPT);
         final Allocation output = Allocation.createTyped(rs, input.getType());
         final ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-        script.setRadius(radius);
+        script.setRadius(radius);// 设定模糊度
         script.setInput(input);
         script.forEach(output);
         output.copyTo(bitmap);
