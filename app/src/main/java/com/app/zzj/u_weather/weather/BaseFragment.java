@@ -29,6 +29,11 @@ public class BaseFragment extends Fragment implements MainActivity.WeatherData{
     }
 
     @Override
+    public void onCityChanged(String city) {
+
+    }
+
+    @Override
     public void onRefreshViews(Weather weather) {
 
     }

@@ -33,6 +33,7 @@ public class SnowView extends View {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.WHITE);
         paint.setStyle(Paint.Style.FILL);
+        paint.setAlpha(150);
         snowflakes = new SnowFlake[NUM_SNOWFLAKES];
         for (int i = 0; i < NUM_SNOWFLAKES; i++) {
             snowflakes[i] = SnowFlake.create(width, height, paint);

@@ -9,17 +9,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.app.zzj.u_weather.API.ApiManager;
 import com.app.zzj.u_weather.API.Entity.Weather;
 import com.app.zzj.u_weather.Data.CityProvider;
 import com.app.zzj.u_weather.R;
@@ -27,52 +29,38 @@ import com.app.zzj.u_weather.R;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import Util.BlurTool;
 
 
-public class MainActivity extends FragmentActivity implements SwipeRefreshLayout.OnRefreshListener,View.OnClickListener {
+public class MainActivity extends FragmentActivity implements View.OnClickListener{
 
-    private final int WEATHER_UPDATE_COMPLETE = 1;
+    private final String DEFAULT_CITY = "北京";
     private final int CITY_LOAD_COMPLETE = 2;
 
     private final int CHOOSE_CITY  = 1000;
     private TextView tv_city;
-    private SwipeRefreshLayout refresh;
-
-    private String city = "北京";
-
-    private List<BaseFragment> fragmentList = new ArrayList<BaseFragment>();
+    private ViewPager vp_main;
+    private ImageButton ib_add_city;
 
     private ArrayList<City> allcityList = new ArrayList<City>();
     private ArrayList<City> hotcityList = new ArrayList<City>();
 
+    private FragmentPagerAdapter fragmentPagerAdapter;
+    private List<Map<String, BaseFragment>> cityMap = new ArrayList<Map<String, BaseFragment>>();
+
+    private String current_city;
+    private int current_fragment_index = 0;
+
     public interface WeatherData {
+        void onCityChanged(String city);
         void onRefreshViews(Weather weather);
     }
 
-    private Handler mHandler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case WEATHER_UPDATE_COMPLETE:
-                    refresh.setRefreshing(false);
-                    tv_city.setText(city);
-                    if(msg.obj != null) {
-                        Weather weather = (Weather) msg.obj;
-                        for(BaseFragment fragment: fragmentList)
-                            fragment.onRefreshViews(weather);
-                    } else {
-                        Toast.makeText(MainActivity.this, R.string.error_update_weather, Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,28 +70,25 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         }
         setContentView(R.layout.activity_main);
+        current_city = DEFAULT_CITY;
         initViews();
-        updateWeather();
+        initData();
+        fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position){
+                CityInfoFragment f = (CityInfoFragment) cityMap.get(position).values().iterator().next();
+                return f;
+            }
 
-        FragmentManager fragmentManager =getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        WeatherFragment weatherFragment = new WeatherFragment();
-        LifeFragment lifeFragment = new LifeFragment();
-        fragmentList.add(weatherFragment);
-        fragmentList.add(lifeFragment);
-        transaction.add(R.id.weatherF, weatherFragment);
-        transaction.add(R.id.weatherF, lifeFragment);
-        transaction.commit();
+            @Override
+            public int getCount() {
+                return cityMap.size();
+            }
+        };
+        vp_main.setAdapter(fragmentPagerAdapter);
 
         Bitmap bmp = ((BitmapDrawable) getResources().getDrawable(R.drawable.night_bg)).getBitmap();
         getWindow().setBackgroundDrawable(new BitmapDrawable(BlurTool.blur(this, bmp)));
-
-        new CityLoder().execute();
-    }
-
-    @Override
-    public void onRefresh() {
-        updateWeather();
     }
 
     @Override
@@ -111,8 +96,10 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
             case CHOOSE_CITY:
-                city = data.getStringExtra("city");
-                updateWeather();
+                current_city = data.getStringExtra("city");
+                tv_city.setText(current_city);
+                Log.d("zzj","vp_main.getCurrentItem():"+vp_main.getCurrentItem());
+                cityMap.get(vp_main.getCurrentItem()).values().iterator().next().onCityChanged(current_city);
                 break;
             default:break;
         }
@@ -126,35 +113,53 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
             intent.putParcelableArrayListExtra("allcity",allcityList );
             intent.putParcelableArrayListExtra("hotcity",hotcityList );
             startActivityForResult(intent , CHOOSE_CITY);
+        } else if(v.getId() == R.id.ib_add_city) {
+            Log.d("zzj","add");
+            Map<String, BaseFragment> map = new HashMap<String, BaseFragment>();
+            BaseFragment fragment = new CityInfoFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("city", "合肥");
+            fragment.setArguments(bundle);
+            map.put("合肥", fragment);
+            cityMap.add(map);
+            fragmentPagerAdapter.notifyDataSetChanged();
         }
     }
 
-    private void updateWeather() {
-        ApiManager.updateWeather(this, city, new ApiManager.ApiListerner() {
+    private void initViews() {
+        vp_main = (ViewPager) findViewById(R.id.main_pager);
+        vp_main.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onUpdateError() {
-                mHandler.sendEmptyMessage(WEATHER_UPDATE_COMPLETE);
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
             }
 
             @Override
-            public void onRecieveWeather(Weather weather) {
-                Message msg =  mHandler.obtainMessage();
-                msg.obj = weather;
-                msg.what = WEATHER_UPDATE_COMPLETE;
-                mHandler.sendMessage(msg);
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
+        tv_city = (TextView) findViewById(R.id.tv_city);
+        tv_city.setText(current_city);
+        tv_city.setOnClickListener(this);
+        ib_add_city = (ImageButton) findViewById(R.id.ib_add_city);
+        ib_add_city.setOnClickListener(this);
     }
 
-    private void initViews() {
-        tv_city = (TextView) findViewById(R.id.tv_city);
-        tv_city.setText(city);
-        tv_city.setOnClickListener(this);
-        refresh = (SwipeRefreshLayout) findViewById(R.id.refresh);
-        refresh.setOnRefreshListener(this);
-        refresh.setColorSchemeResources(android.R.color.holo_blue_bright, android.R.color.holo_green_light,
-                android.R.color.holo_orange_light, android.R.color.holo_red_light);
-        refresh.setProgressViewEndTarget(true, 120);
+    private void initData() {
+        Map<String, BaseFragment> map = new HashMap<String, BaseFragment>();
+        BaseFragment fragment = new CityInfoFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("city", current_city);
+        fragment.setArguments(bundle);
+        map.put(current_city, fragment);
+        cityMap.add(map);
+        new CityLoder().execute();
     }
 
     class CityLoder extends AsyncTask {
@@ -176,7 +181,6 @@ public class MainActivity extends FragmentActivity implements SwipeRefreshLayout
 
         @Override
         protected void onPostExecute(Object o) {
-            mHandler.sendEmptyMessage(CITY_LOAD_COMPLETE);
             super.onPostExecute(o);
         }
     }

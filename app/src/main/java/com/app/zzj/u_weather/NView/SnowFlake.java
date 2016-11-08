@@ -56,8 +56,6 @@ public class SnowFlake {
         //angle += random.getRandom(-ANGLE_SEED, ANGLE_SEED) / ANGLE_DIVISOR;
         angle += (random.nextFloat()-0.5)*2*ANGLE_SEED / ANGLE_DIVISOR;
 
-        //position.set((int) x, (int) y);//0.1转为了1，-0.1却转成了0，这造成了雪花单向飘动。
-        Log.d("zzj","move:"+angle+","+increment * Math.cos(angle)+","+position.x+","+x);
         position.set((int) x, (int) y);
 
         if (!isInside(width, height)) {
