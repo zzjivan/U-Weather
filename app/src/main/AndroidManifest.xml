@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".weather.MainActivity"
+            android:name=".weather.WelcomeActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,8 +20,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".weather.MainActivity"
+            android:launchMode="singleTask"/>
+        <activity android:name=".weather.CityManagementActivity"/>
         <activity android:name=".weather.CityChooseActivity"
             android:windowSoftInputMode="adjustPan"></activity>
+
+        <service android:name="com.app.zzj.u_weather.weather.WeatherDataService"/>
 
         <provider android:name=".Data.CityProvider"
             android:authorities="com.app.zzj.u_weather.Data.CityProvider"/>

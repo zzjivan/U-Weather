@@ -9,7 +9,7 @@ public class Info_Realtime {
     public String date;
     public String time;
     public int week;
-    public String moon;
+    public String moon;//农历
     public long dataUptime;
     public Info_Realtime_weather weather;
     public Info_Realtime_wind wind;

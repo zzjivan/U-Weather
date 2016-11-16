@@ -38,6 +38,11 @@ public class WeatherFragment extends BaseFragment implements MainActivity.Weathe
     }
 
     @Override
+    protected void lazyLoad() {
+
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fm = getChildFragmentManager();

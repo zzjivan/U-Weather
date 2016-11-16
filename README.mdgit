@@ -1,1 +1,5 @@
 "# U-Weather"  initgit add README.mdgit commit -m "first commit"git remote add origin https://github.com/zzjivan/U-Weather.gitgit push -u origin master
+#SharedPerference
+city.xml
+citySet:用户添加的要展示的城市
+currentCity:用户最后停留的城市界面

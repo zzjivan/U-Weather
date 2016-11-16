@@ -67,6 +67,11 @@ public class LifeFragment extends BaseFragment implements MainActivity.WeatherDa
     }
 
     @Override
+    protected void lazyLoad() {
+
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         for(int i = 0; i < item_name.length; i ++) {

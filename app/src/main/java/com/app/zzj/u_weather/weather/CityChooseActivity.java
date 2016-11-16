@@ -1,6 +1,12 @@
 package com.app.zzj.u_weather.weather;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +20,11 @@ import com.app.zzj.u_weather.NView.LetterView;
 import com.app.zzj.u_weather.R;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import aidl.IWeatherDataInterface;
 
 public class CityChooseActivity extends AppCompatActivity implements LetterView.OnSlidingListener , AdapterView.OnItemClickListener {
 
@@ -27,17 +37,34 @@ public class CityChooseActivity extends AppCompatActivity implements LetterView.
 
     private CityChooseAdapter cityChooseAdapter;
 
-    private List<City> allcityList = new ArrayList<City>();
-    private List<City> hotcityList = new ArrayList<City>();
+    private List<String> allcityList = new ArrayList<String>();
+    private List<String> hotcityList = new ArrayList<String>();
+
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                Log.d("zzj","onServiceConnected");
+                allcityList = IWeatherDataInterface.Stub.asInterface(service).getAllChineseCities();
+                cityChooseAdapter = new CityChooseAdapter(CityChooseActivity.this, allcityList, hotcityList);
+                lv_list_city.setAdapter(cityChooseAdapter);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN); 有时候Manifest中设置好像无效？？
+        bindService(new Intent(CityChooseActivity.this, WeatherDataService.class), serviceConnection, Context.BIND_AUTO_CREATE);
         setContentView(R.layout.activity_city_choose);
-        allcityList = getIntent().getParcelableArrayListExtra("allcity");
-        hotcityList = getIntent().getParcelableArrayListExtra("hotcity");
-        cityChooseAdapter = new CityChooseAdapter(this, allcityList, hotcityList);
         initViews();
         initEvents();
     }
@@ -49,17 +76,34 @@ public class CityChooseActivity extends AppCompatActivity implements LetterView.
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra("city", et_search_city.getText().toString());
-        setResult(CHOOSE_CITY, intent);
-        super.onBackPressed();
+        setResult(CHOOSE_CITY);
+        finish();
+        //super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(serviceConnection != null)
+            unbindService(serviceConnection);
+        super.onDestroy();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent intent = new Intent();
-        intent.putExtra("city", allcityList.get(position).getName());
-        setResult(CHOOSE_CITY, intent);
+        String city = (String)allcityList.toArray()[position];
+        SharedPreferences sp = getSharedPreferences("city",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+
+        editor.putString("currentCity", city);
+
+        Set<String> cities = sp.getStringSet("citySet", null);
+        cities.add(city);
+        editor.putStringSet("citySet", cities);
+
+        editor.commit();
+
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
         finish();
     }
 
@@ -68,7 +112,6 @@ public class CityChooseActivity extends AppCompatActivity implements LetterView.
         tv_toast = (TextView) findViewById(R.id.tv_toast);
         lv_letter = (LetterView) findViewById(R.id.lv_letter);
         lv_list_city = (ListView) findViewById(R.id.lv_list_city);
-        lv_list_city.setAdapter(cityChooseAdapter);
     }
 
     private void initEvents() {

@@ -14,7 +14,7 @@ import android.renderscript.ScriptIntrinsicBlur;
 public class BlurTool {
 
     public static Bitmap blur(Context context, Bitmap bkg) {
-        float radius = 20;
+        float radius = 3;
 
         bkg = small(bkg);
         Bitmap bitmap = bkg.copy(bkg.getConfig(), true);

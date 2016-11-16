@@ -15,19 +15,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import Util.PinyinTool;
+
 /**
  * Created by sedwt on 2016/10/11.
  */
 public class CityChooseAdapter extends BaseAdapter {
 
     private Context context;
-    private List<City> mAllCityList;
-    private List<City> mHotCityList;
+    private List<String> mAllCityList;
+    private List<String> mHotCityList;
     private Map<String, Integer> letter2position = new HashMap<String, Integer>();
 
     private final int VIEW_TYPE = 5;
 
-    public CityChooseAdapter(Context context, List<City> allCityList, List<City> hotCityList) {
+    public CityChooseAdapter(Context context, List<String> allCityList, List<String> hotCityList) {
         this.context = context;
         this.mAllCityList = allCityList;
         this.mHotCityList = hotCityList;
@@ -38,12 +40,12 @@ public class CityChooseAdapter extends BaseAdapter {
         setData(mAllCityList, mHotCityList);
     }
 
-    public void setData(List<City> allCityList, List<City> hotCityList) {
+    public void setData(List<String> allCityList, List<String> hotCityList) {
         this.mAllCityList = allCityList;
         this.mHotCityList = hotCityList;
         for(int i = 0; i < mAllCityList.size(); i ++) {
-            String current = mAllCityList.get(i).getAlpha();
-            String pre = i - 1 >= 0 ? mAllCityList.get(i - 1).getAlpha() : "";
+            String current = PinyinTool.getAlpha(mAllCityList.get(i));
+            String pre = i - 1 >= 0 ? PinyinTool.getAlpha(mAllCityList.get(i-1)) : "";
             if(current.equals(pre)) {
             } else {
                 letter2position.put(current, i);
@@ -104,10 +106,10 @@ public class CityChooseAdapter extends BaseAdapter {
                 } else {
                     holder = (ViewHolder) convertView.getTag();
                 }
-                    holder.tv_city_name.setText(mAllCityList.get(position).getName());
+                    holder.tv_city_name.setText(mAllCityList.get(position));
 //                    holder.llMain.setOnClickListener();
-                    String current = mAllCityList.get(position).getAlpha();
-                    String pre = position - 1 >= 0 ? mAllCityList.get(position-1).getAlpha() : "";
+                    String current = PinyinTool.getAlpha(mAllCityList.get(position));
+                    String pre = position - 1 >= 0 ? PinyinTool.getAlpha(mAllCityList.get(position-1)) : "";
                     if(current.equals(pre) && position != 4) {
                         holder.tv_alpha.setVisibility(View.GONE);
                     } else {

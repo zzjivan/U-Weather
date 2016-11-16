@@ -21,6 +21,7 @@ import java.util.List;
 
 /**
  * Created by sedwt on 2016/11/8.
+ * 主fragment，本身不更新UI，管理其包含的fragment来进行UI显示
  */
 public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayout.OnRefreshListener,MainActivity.WeatherData {
 
@@ -33,6 +34,11 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
     private String city;
 
     public CityInfoFragment() {
+    }
+
+    @Override
+    protected void lazyLoad() {
+
     }
 
     private Handler mHandler = new Handler(){
