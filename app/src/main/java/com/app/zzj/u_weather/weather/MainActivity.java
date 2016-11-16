@@ -77,6 +77,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d("zzj","onNewIntent");
+        cityMap.clear();
+        current_city = getSharedPreferences("city", Context.MODE_PRIVATE).getString("currentCity", null);
         initViews();
         initData();
         if(fragmentPagerAdapter != null)
@@ -99,6 +101,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void initViews() {
+        Log.d("zzj","initViews");
         vp_main = (ViewPager) findViewById(R.id.main_pager);
         vp_main.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -109,12 +112,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             public void onPageSelected(int position) {
                 current_fragment_index  = position;
                 current_city = (String)cityMap.get(position).keySet().toArray()[0];
+                Log.d("zzj","onPageSelected:"+current_city+","+position);
                 tv_city.setText(current_city);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-
+                Log.d("zzj","onPageScrolled");
             }
         });
         tv_city = (TextView) findViewById(R.id.tv_city);
