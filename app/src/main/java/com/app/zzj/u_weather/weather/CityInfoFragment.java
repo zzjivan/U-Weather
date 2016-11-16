@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +39,8 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
 
     @Override
     protected void lazyLoad() {
-
+        Log.d("zzj","lazyLoad");
+        updateWeather();
     }
 
     private Handler mHandler = new Handler(){
@@ -66,7 +68,6 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         city = getArguments().getString("city");
-        updateWeather();
         FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         WeatherFragment weatherFragment = new WeatherFragment();
@@ -80,6 +81,7 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        //updateWeather();
         View view = inflater.inflate(R.layout.fragment_city_info, null);
         initViews(view);
         return view;

@@ -112,13 +112,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             public void onPageSelected(int position) {
                 current_fragment_index  = position;
                 current_city = (String)cityMap.get(position).keySet().toArray()[0];
-                Log.d("zzj","onPageSelected:"+current_city+","+position);
                 tv_city.setText(current_city);
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                Log.d("zzj","onPageScrolled");
             }
         });
         tv_city = (TextView) findViewById(R.id.tv_city);
@@ -135,7 +133,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             Bundle bundle = new Bundle();
             bundle.putString("city", city);
             fragment.setArguments(bundle);
-            map.put(current_city, fragment);
+            map.put(city, fragment);
             cityMap.add(map);
         }
     }
