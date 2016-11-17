@@ -34,12 +34,15 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
 
     private String city;
 
+    WeatherFragment weatherFragment;
+    LifeFragment lifeFragment;
+
     public CityInfoFragment() {
     }
 
     @Override
     protected void lazyLoad() {
-        Log.d("zzj","lazyLoad");
+        Log.d("zzj",city+":lazyLoad");
         updateWeather();
     }
 
@@ -70,13 +73,20 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
         city = getArguments().getString("city");
         FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        WeatherFragment weatherFragment = new WeatherFragment();
-        LifeFragment lifeFragment = new LifeFragment();
-        fragmentList.add(weatherFragment);
-        fragmentList.add(lifeFragment);
-        transaction.add(R.id.weatherF, weatherFragment);
-        transaction.add(R.id.weatherF, lifeFragment);
-        transaction.commit();
+        if(savedInstanceState == null) {
+            weatherFragment = new WeatherFragment();
+            lifeFragment = new LifeFragment();
+            fragmentList.add(weatherFragment);
+            fragmentList.add(lifeFragment);
+            transaction.add(R.id.weatherF, weatherFragment, "weather");
+            transaction.add(R.id.weatherF, lifeFragment, "life");
+            transaction.commit();
+        } else {
+            weatherFragment = (WeatherFragment) fragmentManager.findFragmentByTag("weather");
+            lifeFragment = (LifeFragment) fragmentManager.findFragmentByTag("life");
+            Log.d("zzj","savedInstanceState not null changed");
+        }
+
     }
 
     @Override
@@ -85,6 +95,12 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
         View view = inflater.inflate(R.layout.fragment_city_info, null);
         initViews(view);
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d("zzj","onDestroy:"+city);
+        super.onDestroy();
     }
 
     @Override
@@ -121,5 +137,9 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
                 mHandler.sendMessage(msg);
             }
         });
+    }
+
+    public String getCity() {
+        return city;
     }
 }

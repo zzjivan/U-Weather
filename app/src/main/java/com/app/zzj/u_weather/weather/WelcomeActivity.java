@@ -1,6 +1,7 @@
 package com.app.zzj.u_weather.weather;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,16 +34,17 @@ public class WelcomeActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.activity_welcome);
 
+        Cursor c = getContentResolver().query(CityProvider.CONTENT_URI_PRESENT_CITY, null, null, null, null);
+        if(c != null && !c.moveToNext()) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(CityProvider.PresentCityColumns.CITY_NAME, "北京");
+            getContentResolver().insert(CityProvider.CONTENT_URI_PRESENT_CITY, contentValues);
+            c.close();
+        }
+
         SharedPreferences sp = getSharedPreferences("city", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-        if(sp.getStringSet("citySet", null) == null) {
-            Log.d("zzj", "init citySet");
-            Set<String> city = new HashSet<String>();
-            city.add("北京");
-            editor.putStringSet("citySet", city);
-        }
         if(sp.getString("currentCity", null) == null) {
-            Log.d("zzj","init currentCity");
             editor.putString("currentCity", "北京");
         }
         editor.commit();

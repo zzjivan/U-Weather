@@ -1,14 +1,13 @@
 package com.app.zzj.u_weather.Data;
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import com.app.zzj.u_weather.R;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,44 +16,61 @@ import java.io.OutputStream;
 /**
  * Created by sedwt on 2016/10/13.
  */
-public class DataBaseHelper extends SQLiteOpenHelper {
-
+public class DataBaseHelper {
     //The Android's default system path of your application database.
     private static String DB_PATH = "/data/data/com.app.zzj.u_weather/databases/";
-
-    private static String DB_NAME = "city";
-
+    private static String DB_NAME = "city.db";
     private SQLiteDatabase myDataBase;
+    private Context context;
 
-    private Context myContext;
 
     public DataBaseHelper(Context context) {
-        super(context, DB_NAME, null, 1);
-        this.myContext = context;
-    }
-
-    public DataBaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
-    }
-
-    public DataBaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler) {
-        super(context, name, factory, version, errorHandler);
-    }
-
-    public void CreateDataBase() throws IOException {
-        boolean dbExist = checkDataBase();
-        if(dbExist){
-            //do nothing - database already exist
-        }else{
-            //By calling this method and empty database will be created into the default system path
-            //of your application so we are gonna be able to overwrite that database with our database.
-            this.getReadableDatabase();
-            try {
-                copyDataBase();
-            } catch (IOException e) {
-                throw new Error("Error copying database");
-            }
+        this.context = context;
+        try {
+            createDataBase();
+            openDataBase();
+            String sql = "create table if not exists P_city "+
+                    "("+
+                    "_id integer primary key autoincrement,"+
+                    "city_name text,"+
+                    "update_time long,"+
+                    "current_temperature text,"+
+                    "current_humidity text,"+
+                    "cloth text,"+
+                    "sick text,"+
+                    "airconditioner text,"+
+                    "washingcar text,"+
+                    "sports text,"+
+                    "ultraviolet text,"+
+                    "pm25 text,"+
+                    "lunar text,"+
+                    "date text,"+
+                    "tomorrow_temperature text,"+
+                    "remain1 text,"+
+                    "remain2 text,"+
+                    "remain3 text"+
+                    ")";
+            myDataBase.execSQL(sql);
+            closeDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    public synchronized SQLiteDatabase openDataBase() throws SQLException {
+        String myPath = DB_PATH + DB_NAME;
+        myDataBase = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READWRITE);
+        return myDataBase;
+    }
+
+    public synchronized void closeDataBase() {
+        if(myDataBase != null)
+            myDataBase.close();
+    }
+
+    private void createDataBase() throws IOException {
+        if(!checkDataBase())
+            copyDataBase();
     }
 
     /**
@@ -81,8 +97,11 @@ public class DataBaseHelper extends SQLiteOpenHelper {
      * This is done by transfering bytestream.
      * */
     private void copyDataBase() throws IOException{
+        File file = new File(DB_PATH);
+        if(!file.exists())
+            file.mkdir();
         //Open your local db as the input stream
-        InputStream myInput = myContext.getResources().openRawResource(R.raw.china_city_name);
+        InputStream myInput = context.getResources().openRawResource(R.raw.china_city_name);
         // Path to the just created empty db
         String outFileName = DB_PATH + DB_NAME;
         //Open the empty db as the output stream
@@ -97,29 +116,5 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         myOutput.flush();
         myOutput.close();
         myInput.close();
-    }
-
-    public SQLiteDatabase openDataBase() throws SQLException {
-        //Open the database
-        String myPath = DB_PATH + DB_NAME;
-        myDataBase = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
-        return myDataBase;
-    }
-
-    @Override
-    public synchronized void close() {
-        if(myDataBase != null)
-            myDataBase.close();
-        super.close();
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
     }
 }

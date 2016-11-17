@@ -20,6 +20,7 @@ import okhttp3.Response;
  */
 public class ApiManager {
 
+    //api由聚合数据提供
     private static final String URL = "http://op.juhe.cn/onebox/weather/query?cityname=%1$s&dtype=json&key=f2a64f1e37759dd8c1025e00f2e14b57";
     private final static Gson gson = new Gson();
 

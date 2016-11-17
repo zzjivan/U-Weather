@@ -2,13 +2,14 @@ package com.app.zzj.u_weather.weather;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
@@ -17,13 +18,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.app.zzj.u_weather.API.Entity.Weather;
+import com.app.zzj.u_weather.Data.CityProvider;
 import com.app.zzj.u_weather.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import Util.BlurTool;
 
@@ -34,7 +35,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private ViewPager vp_main;
     private ImageButton ib_manage_city;
 
-    private FragmentPagerAdapter fragmentPagerAdapter;
+    private FragmentStatePagerAdapter fragmentPagerAdapter;
     private List<Map<String, BaseFragment>> cityMap = new ArrayList<Map<String, BaseFragment>>();
 
     private String current_city;
@@ -56,18 +57,20 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         current_city = getSharedPreferences("city", Context.MODE_PRIVATE).getString("currentCity", null);
         initViews();
         initData();
-        fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-            @Override
-            public Fragment getItem(int position){
-                CityInfoFragment cityInfoFragment = (CityInfoFragment) cityMap.get(position).values().iterator().next();
-                return cityInfoFragment;
-            }
+        fragmentPagerAdapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
 
             @Override
             public int getCount() {
                 return cityMap.size();
             }
+
+            @Override
+            public Fragment getItem(int position) {
+                CityInfoFragment cityInfoFragment = (CityInfoFragment) cityMap.get(position).values().iterator().next();
+                return cityInfoFragment;
+            }
         };
+
         vp_main.setAdapter(fragmentPagerAdapter);
 
         Bitmap bmp = ((BitmapDrawable) getResources().getDrawable(R.drawable.sun)).getBitmap();
@@ -75,14 +78,20 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     @Override
+    protected void onStart() {
+        showCurrentCity();
+        super.onStart();
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
-        Log.d("zzj","onNewIntent");
         cityMap.clear();
         current_city = getSharedPreferences("city", Context.MODE_PRIVATE).getString("currentCity", null);
         initViews();
         initData();
         if(fragmentPagerAdapter != null)
             fragmentPagerAdapter.notifyDataSetChanged();
+        showCurrentCity();
         super.onNewIntent(intent);
     }
 
@@ -101,7 +110,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void initViews() {
-        Log.d("zzj","initViews");
         vp_main = (ViewPager) findViewById(R.id.main_pager);
         vp_main.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -126,20 +134,32 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private void initData() {
-        Set<String> cities = getSharedPreferences("city", Context.MODE_PRIVATE).getStringSet("citySet", null);
-        for(String city : cities) {
-            Map<String, BaseFragment> map = new HashMap<String, BaseFragment>();
-            BaseFragment fragment = new CityInfoFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString("city", city);
-            fragment.setArguments(bundle);
-            map.put(city, fragment);
-            cityMap.add(map);
+        Cursor c = getContentResolver().query(CityProvider.CONTENT_URI_PRESENT_CITY, new String[]{ CityProvider.PresentCityColumns.CITY_NAME }, null, null, null);
+        if(c != null) {
+            String city = "";
+            while(c.moveToNext()) {
+                city = c.getString(c.getColumnIndex(CityProvider.PresentCityColumns.CITY_NAME));
+                Map<String, BaseFragment> map = new HashMap<String, BaseFragment>();
+                BaseFragment fragment = new CityInfoFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("city", city);
+                Log.d("zzj","city:"+city);
+                fragment.setArguments(bundle);
+                map.put(city, fragment);
+                cityMap.add(map);
+            }
+            c.close();
         }
     }
 
     private void showCurrentCity() {
         tv_city.setText(current_city);
+        for(int i = 0; i < cityMap.size(); i ++) {
+            if(cityMap.get(i).containsKey(current_city)) {
+                current_fragment_index = i;
+                break;
+            }
+        }
         vp_main.setCurrentItem(current_fragment_index);
     }
 }

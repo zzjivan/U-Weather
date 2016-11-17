@@ -1,6 +1,7 @@
 package com.app.zzj.u_weather.weather;
 
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -16,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.app.zzj.u_weather.Data.CityProvider;
 import com.app.zzj.u_weather.NView.LetterView;
 import com.app.zzj.u_weather.R;
 
@@ -91,15 +93,14 @@ public class CityChooseActivity extends AppCompatActivity implements LetterView.
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         String city = (String)allcityList.toArray()[position];
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CityProvider.PresentCityColumns.CITY_NAME, city);
+        getContentResolver().insert(CityProvider.CONTENT_URI_PRESENT_CITY, contentValues);
+
         SharedPreferences sp = getSharedPreferences("city",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-
         editor.putString("currentCity", city);
-
-        Set<String> cities = sp.getStringSet("citySet", null);
-        cities.add(city);
-        editor.putStringSet("citySet", cities);
-
         editor.commit();
 
         Intent intent = new Intent(this, MainActivity.class);

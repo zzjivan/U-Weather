@@ -1,7 +1,6 @@
 package com.app.zzj.u_weather.weather;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -11,7 +10,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.app.zzj.u_weather.API.ApiManager;
 import com.app.zzj.u_weather.API.Entity.Weather;
@@ -22,10 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import Util.PinyinTool;
 import aidl.IWeatherDataInterface;
@@ -38,8 +34,6 @@ public class WeatherDataService extends Service {
 
     private List<String> all_chinese_cities = new ArrayList<String>();
     private Map<String, Weather> cityWeather = new HashMap<String, Weather>();
-
-    private Set<String> showcityList = new HashSet<String>();
 
     private Handler mHandler = new Handler(){
         @Override
@@ -60,10 +54,10 @@ public class WeatherDataService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        showcityList = getSharedPreferences("city", Context.MODE_PRIVATE).getStringSet("citySet", null);
-        for(String city : showcityList) {
-            updateWeather(city);
-        }
+//        showcityList =
+//        for(String city : showcityList) {
+//            updateWeather(city);
+//        }
         if(all_chinese_cities.size() == 0)
             new CityLoder().execute();
     }
@@ -192,7 +186,7 @@ public class WeatherDataService extends Service {
         @Override
         protected Object doInBackground(Object[] params) {
             //id + name + postcode + province_id
-            Cursor c = getContentResolver().query(CityProvider.CityColumns.CONTENT_URI, null, null, null, null);
+            Cursor c = getContentResolver().query(CityProvider.CONTENT_URI_CITY, null, null, null, null);
             if(c != null && c.moveToFirst()) {
                 do {
                     all_chinese_cities.add(c.getString(0));

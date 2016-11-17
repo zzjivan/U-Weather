@@ -93,12 +93,14 @@ public class LifeFragment extends BaseFragment implements MainActivity.WeatherDa
     @Override
     public void onRefreshViews(Weather weather) {
         itemList.get(CALENDAR).setState(weather.getResult().getData().getRealtime().getMoon());
-        itemList.get(CAR).setState(weather.getResult().getData().getLife().getInfo().getXiche().get(0));
-        itemList.get(CLOTH).setState(weather.getResult().getData().getLife().getInfo().getChuanyi().get(0));
-        itemList.get(COLD).setState(weather.getResult().getData().getLife().getInfo().getGanmao().get(0));
-        itemList.get(SPORT).setState(weather.getResult().getData().getLife().getInfo().getYundong().get(0));
+        if(weather.getResult().getData().getLife().size() != 0) {
+            itemList.get(CAR).setState(weather.getResult().getData().getLife().get(0).getInfo().getXiche().get(0));
+            itemList.get(CLOTH).setState(weather.getResult().getData().getLife().get(0).getInfo().getChuanyi().get(0));
+            itemList.get(COLD).setState(weather.getResult().getData().getLife().get(0).getInfo().getGanmao().get(0));
+            itemList.get(SPORT).setState(weather.getResult().getData().getLife().get(0).getInfo().getYundong().get(0));
+            itemList.get(ULTRAVIOLET).setState(weather.getResult().getData().getLife().get(0).getInfo().getZiwaixian().get(0));
+        }
         itemList.get(POLLUTE).setState(weather.getResult().getData().getPm25().getPm25().getQuality());
-        itemList.get(ULTRAVIOLET).setState(weather.getResult().getData().getLife().getInfo().getZiwaixian().get(0));
         mAdapter.notifyDataSetChanged();
     }
 

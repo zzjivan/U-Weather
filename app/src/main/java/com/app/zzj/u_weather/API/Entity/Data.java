@@ -7,18 +7,18 @@ import java.util.List;
  */
 public class Data {
     private Info_Realtime realtime;
-    private Info_Life life;
+    private List<Info_Life> life;
     private List<Info_Weather> weather;
     private Info_PM25 pm25;
     private String jingqu;
     private String date;
     private String isForeign;
 
-    public Info_Life getLife() {
+    public List<Info_Life> getLife() {
         return life;
     }
 
-    public void setLife(Info_Life life) {
+    public void setLife(List<Info_Life> life) {
         this.life = life;
     }
 

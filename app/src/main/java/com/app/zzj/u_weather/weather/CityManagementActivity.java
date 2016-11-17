@@ -1,19 +1,13 @@
 package com.app.zzj.u_weather.weather;
 
-import android.app.ActionBar;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +18,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.app.zzj.u_weather.Data.CityProvider;
 import com.app.zzj.u_weather.R;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -39,7 +36,7 @@ public class CityManagementActivity extends AppCompatActivity {
     private ListView lv_cityList;
     private ImageButton ib_city_add;
     private cityAdapter cityAdapter;
-    private Set<String> cities = new HashSet<String>();
+    private List<String> cities = new ArrayList<String>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +51,12 @@ public class CityManagementActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setNavigationIcon(R.drawable.ic_ab_back_holo_dark_am);
 
-        cities = getSharedPreferences("city", Context.MODE_PRIVATE).getStringSet("citySet", null);
+        Cursor c = getContentResolver().query(CityProvider.CONTENT_URI_PRESENT_CITY, new String[]{ CityProvider.PresentCityColumns.CITY_NAME }, null, null, "_id desc");
+        if(c != null) {
+            while(c.moveToNext()) {
+                cities.add(c.getString(c.getColumnIndex(CityProvider.PresentCityColumns.CITY_NAME)));
+            }
+        }
 
         lv_cityList = (ListView) findViewById(R.id.lv_list_city);
         cityAdapter = new cityAdapter(cities);
@@ -89,9 +91,9 @@ public class CityManagementActivity extends AppCompatActivity {
     }
 
     class cityAdapter extends BaseAdapter {
-        private Set<String> cities;
+        private List<String> cities;
 
-        public cityAdapter(Set<String> data) {
+        public cityAdapter(List<String> data) {
             cities = data;
         }
 
