@@ -56,7 +56,7 @@ public abstract  class BaseFragment extends Fragment implements MainActivity.Wea
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return null;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override

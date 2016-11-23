@@ -101,7 +101,7 @@ public class DataBaseHelper {
         if(!file.exists())
             file.mkdir();
         //Open your local db as the input stream
-        InputStream myInput = context.getResources().openRawResource(R.raw.china_city_name);
+        InputStream myInput = context.getResources().openRawResource(R.raw.world_city);
         // Path to the just created empty db
         String outFileName = DB_PATH + DB_NAME;
         //Open the empty db as the output stream

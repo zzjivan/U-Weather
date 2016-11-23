@@ -32,7 +32,7 @@ import aidl.IWeatherDataInterface;
 public class WeatherDataService extends Service {
     private final int WEATHER_UPDATE_COMPLETE = 1;
 
-    private List<String> all_chinese_cities = new ArrayList<String>();
+    private List<Map<String, String>> all_chinese_cities = new ArrayList<Map<String,String>>();
     private Map<String, Weather> cityWeather = new HashMap<String, Weather>();
 
     private Handler mHandler = new Handler(){
@@ -143,7 +143,7 @@ public class WeatherDataService extends Service {
         }
 
         @Override
-        public List<String> getAllChineseCities() throws RemoteException {
+        public List<Map<String,String>> getAllChineseCities() throws RemoteException {
             return all_chinese_cities;
         }
 
@@ -157,7 +157,7 @@ public class WeatherDataService extends Service {
     private void updateWeather(String city) {
         ApiManager.updateWeather(this, city, new ApiManager.ApiListerner() {
             @Override
-            public void onUpdateError() {
+            public void onResponseError() {
                 mHandler.sendEmptyMessage(WEATHER_UPDATE_COMPLETE);
             }
 
@@ -171,13 +171,10 @@ public class WeatherDataService extends Service {
         });
     }
 
-    Comparator<String> comparator = new Comparator<String>() {
+    Comparator<Map<String, String>> comparator = new Comparator<Map<String, String>>() {
         @Override
-        public int compare(String lhs, String rhs) {
-            String l = PinyinTool.getAlpha(lhs);
-            String r =PinyinTool.getAlpha(rhs);
-            int flag = l.compareTo(r);
-            return  flag;
+        public int compare(Map<String, String> ml, Map<String, String> mr) {
+            return PinyinTool.getAlpha(ml.get("pinyin"), true).compareTo(PinyinTool.getAlpha(mr.get("pinyin"), true));
         }
     };
 
@@ -186,10 +183,15 @@ public class WeatherDataService extends Service {
         @Override
         protected Object doInBackground(Object[] params) {
             //id + name + postcode + province_id
-            Cursor c = getContentResolver().query(CityProvider.CONTENT_URI_CITY, null, null, null, null);
+            Cursor c = getContentResolver().query(CityProvider.CONTENT_URI_CITY, null, "citycode>?", new String[]{ "101340406" }, null);
             if(c != null && c.moveToFirst()) {
                 do {
-                    all_chinese_cities.add(c.getString(0));
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put("citycode",c.getString(0));
+                    map.put("cityname",c.getString(1));
+                    map.put("pinyin",c.getString(2));
+                    map.put("province",c.getString(3));
+                    all_chinese_cities.add(map);
                 } while(c.moveToNext());
                 //按字母排序
                 Log.d("zzj","start sort");

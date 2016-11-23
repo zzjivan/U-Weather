@@ -24,7 +24,7 @@ interface IWeatherDataInterface {
 
     String getLunar();//获取农历日期
 
-    List<String> getAllChineseCities();
+    List<Map<String,String>> getAllChineseCities();
 
     void refreshData();
 }

@@ -7,12 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -65,10 +67,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }
 
             @Override
+            public int getItemPosition(Object object) {
+                return POSITION_NONE;
+            }
+
+            @Override
             public Fragment getItem(int position) {
                 CityInfoFragment cityInfoFragment = (CityInfoFragment) cityMap.get(position).values().iterator().next();
                 return cityInfoFragment;
             }
+
         };
 
         vp_main.setAdapter(fragmentPagerAdapter);

@@ -30,8 +30,12 @@ public class PinyinTool {
         return pybf.toString().trim();
     }
 
-    public static String getAlpha(String s) {
-        String str = getpinyin(s);
+    public static String getAlpha(String s, boolean isPinyin) {
+        String str = "";
+        if(!isPinyin)
+            str = getpinyin(s);
+        else
+            str = s;
 
         if (str == null) {
             return "#";

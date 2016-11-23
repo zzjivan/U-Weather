@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,6 +28,8 @@ import java.util.List;
 public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayout.OnRefreshListener,MainActivity.WeatherData {
 
     private final int WEATHER_UPDATE_COMPLETE = 1;
+    private final int WEATHER_UPDATE_ERROR = 2;
+    private final int WEATHER_NETWORK_ERROR = 3;
 
     private SwipeRefreshLayout refresh;
 
@@ -54,6 +57,7 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
                 case WEATHER_UPDATE_COMPLETE:
                     refresh.setRefreshing(false);
                     if(msg.obj != null) {
+                        Log.d("zzj","weather not null");
                         Weather weather = (Weather) msg.obj;
                         for(BaseFragment fragment: fragmentList)
                             fragment.onRefreshViews(weather);
@@ -68,12 +72,16 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
     };
 
     @Override
+    public void setInitialSavedState(SavedState state) {
+//        super.setInitialSavedState(state);
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         city = getArguments().getString("city");
         FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        if(savedInstanceState == null) {
             weatherFragment = new WeatherFragment();
             lifeFragment = new LifeFragment();
             fragmentList.add(weatherFragment);
@@ -81,11 +89,6 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
             transaction.add(R.id.weatherF, weatherFragment, "weather");
             transaction.add(R.id.weatherF, lifeFragment, "life");
             transaction.commit();
-        } else {
-            weatherFragment = (WeatherFragment) fragmentManager.findFragmentByTag("weather");
-            lifeFragment = (LifeFragment) fragmentManager.findFragmentByTag("life");
-            Log.d("zzj","savedInstanceState not null changed");
-        }
 
     }
 
@@ -95,6 +98,13 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
         View view = inflater.inflate(R.layout.fragment_city_info, null);
         initViews(view);
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+//        getChildFragmentManager().putFragment(outState, "weather", weatherFragment);
+//        getChildFragmentManager().putFragment(outState, "life", lifeFragment);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -125,15 +135,18 @@ public class CityInfoFragment extends BaseFragment  implements SwipeRefreshLayou
     private void updateWeather() {
         ApiManager.updateWeather(getActivity(), city, new ApiManager.ApiListerner() {
             @Override
-            public void onUpdateError() {
-                mHandler.sendEmptyMessage(WEATHER_UPDATE_COMPLETE);
+            public void onResponseError() {
+                mHandler.sendEmptyMessage(WEATHER_NETWORK_ERROR);
             }
 
             @Override
             public void onRecieveWeather(Weather weather) {
                 Message msg =  mHandler.obtainMessage();
                 msg.obj = weather;
-                msg.what = WEATHER_UPDATE_COMPLETE;
+                if(weather.getResult() != null)
+                    msg.what = WEATHER_UPDATE_COMPLETE;
+                else
+                    msg.what = WEATHER_UPDATE_ERROR;
                 mHandler.sendMessage(msg);
             }
         });

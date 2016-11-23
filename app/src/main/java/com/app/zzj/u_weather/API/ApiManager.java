@@ -25,7 +25,7 @@ public class ApiManager {
     private final static Gson gson = new Gson();
 
     public interface ApiListerner {
-        public void onUpdateError();
+        public void onResponseError();
         public void onRecieveWeather(Weather weather);
     }
 
@@ -71,7 +71,7 @@ public class ApiManager {
                 Weather weather = gson.fromJson(rsp.body().string(), Weather.class);
                 listener.onRecieveWeather(weather);
             } else {
-                listener.onUpdateError();
+                listener.onResponseError();
             }
         } catch (IOException e) {
             e.printStackTrace();
